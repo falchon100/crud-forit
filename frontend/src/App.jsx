@@ -31,6 +31,23 @@ const deleteTask = async (id) =>{
   }
 }
 
+const toggleComplete = async (task) =>{
+  try{
+    const updatedTask = {...task , completed: !task.completed };
+    const res = await fetch(`http://localhost:3001/api/tasks/${task.id}`,{
+      method:"PUT",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(updatedTask),
+    })
+    const data = await res.json();
+    setTasks((prev)=>
+    prev.map((t)=>(t.id=== data.id ? data : t)))
+  }
+  catch (error){
+    console.error("Error al actualizar tarea:",error);
+  }
+}
+
 return(
   <div>
     <h1>Lista de tareas</h1>
@@ -38,7 +55,13 @@ return(
    <ul>
     {tasks.map(task =>(
       <li key={task.id}>
-        {task.title} {task.completed ?'✅' : '❌' }
+        <span
+        style={{textDecoration: task.completed ? " line-through": "none",
+          cursor:"pointer"
+        }}
+        onClick={()=> toggleComplete(task)}>
+          {task.title} {task.completed ? '✅' : '❌' }
+        </span>
           <button onClick={() => deleteTask(task.id)} style={{ marginLeft: "10px" }}>
     🗑️
   </button>
